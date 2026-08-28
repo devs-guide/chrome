@@ -116,6 +116,9 @@ jobs:
           retention-days: 7
 
   deploy-www:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && vars.CHROME_PAGES_PUBLISH_ENABLED == 'true')
     needs: build-and-validate
     runs-on: ubuntu-24.04
     timeout-minutes: 10

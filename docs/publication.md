@@ -20,3 +20,10 @@ strict lowercase label, an exact remote commit SHA, and a matching typed
 confirmation. Canonical publication likewise requires a typed confirmation for
 manual rollback/republication. Defining these workflows does not authorize
 enabling Pages or running either publisher; those remain human review gates.
+
+An ordinary initial `main` push builds and validates the canonical candidate,
+but the deploy job remains skipped unless the repository variable
+`CHROME_PAGES_PUBLISH_ENABLED` is explicitly set to `true`. Setting that
+variable is a reviewed remote-settings action. A manual canonical run may
+publish without the variable only after its exact SHA and typed live-publish
+confirmation both pass.
