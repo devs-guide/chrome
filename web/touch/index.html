@@ -4,18 +4,44 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark light">
-    <title>Touch diagnostics · Chrome Web Labs</title>
-    <link rel="stylesheet" href="../../assets/site.css">
+    <meta name="theme-color" content="#101826">
+    <meta name="description" content="Offline-capable touch and pointer diagnostics for Chromium browsers.">
+    <title>Touch Lab · Chrome Web Labs</title>
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="./icons/app.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./css/app.css">
   </head>
-  <body class="docs">
-    <header class="docs-header"><a href="../../">Chrome Web Labs</a></header>
-    <main>
-      <article>
-        <p class="eyebrow">Initial feature</p>
-        <h1>Touch diagnostics</h1>
-        <p>The stable application path is active. Guided touch, pointer, gesture, report, and offline PWA behavior will be added after the publication and trusted-LAN foundations pass.</p>
-        <p><a class="text-link" href="readme.md">Read the source feature index →</a></p>
-      </article>
+  <body>
+    <a class="skip-link" href="#app-view">Skip to diagnostics</a>
+    <header class="app-header">
+      <a class="brand" href="#/run" aria-label="Touch Lab home">
+        <span class="brand-mark" aria-hidden="true">◎</span>
+        <span><strong>Touch Lab</strong><small>Chrome Web Labs</small></span>
+      </a>
+      <nav aria-label="Touch Lab">
+        <a href="#/run" data-nav="run">Guided run</a>
+        <a href="#/tests" data-nav="tests">Select test</a>
+        <a href="#/report" data-nav="report">Report</a>
+      </nav>
+    </header>
+    <section class="origin-strip" aria-label="Runtime status">
+      <span id="secure-status" class="status-pill">Checking origin…</span>
+      <span id="network-status" class="status-pill">Checking network…</span>
+      <span id="worker-status" class="status-pill">Checking offline cache…</span>
+    </section>
+    <main id="app-view" tabindex="-1" aria-live="polite">
+      <section class="loading-card">
+        <p class="eyebrow">Loading local catalog</p>
+        <h1>Preparing touch diagnostics…</h1>
+        <p>The suite has no remote runtime dependencies.</p>
+      </section>
     </main>
+    <footer>
+      <p>Results stay in this browser unless you export them.</p>
+      <a href="./readme.md">Feature documentation</a>
+      <a href="../../">Repository guide</a>
+    </footer>
+    <noscript>This laboratory requires local JavaScript to capture browser events.</noscript>
+    <script type="module" src="./js/app.js"></script>
   </body>
 </html>

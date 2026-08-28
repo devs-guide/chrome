@@ -8,6 +8,8 @@ required=(
   readme.md LICENSE SECURITY.md RELEASE_NOTES.md .gitignore
   www/index.html www/assets/site.css web/readme.md web/touch/readme.md
   web/touch/index.html web/touch/data/catalog.json web/touch/schema/report.schema.json
+  web/touch/schema/catalog.schema.json web/touch/manifest.webmanifest
+  web/touch/service-worker.js web/touch/css/app.css web/touch/js/app.js
   web/app/readme.md web/extension/readme.md web/pwa/readme.md web/rtc/readme.md
   web/wasm/readme.md build/readme.md build/source/readme.md docs/readme.md
   actions/publication.manifest actions/www.pages.sh actions/validate.pages.sh
@@ -41,5 +43,6 @@ fi
 while IFS= read -r script; do bash -n "${script}"; done < <(find actions -type f -name '*.sh' | sort)
 while IFS= read -r module; do python3 -m py_compile "${module}"; done < <(find actions tools tests -type f -name '*.py' 2>/dev/null | sort)
 while IFS= read -r document; do python3 -m json.tool "${document}" >/dev/null; done < <(find web -type f -name '*.json' | sort)
+python3 actions/validate_touch.py
 
 printf '[validate.repository][PASS] repository contract\n'

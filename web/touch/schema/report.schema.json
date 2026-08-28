@@ -9,6 +9,8 @@
     "catalogVersion",
     "runId",
     "createdAt",
+    "updatedAt",
+    "origin",
     "secureContext",
     "results"
   ],
@@ -18,9 +20,14 @@
     "catalogVersion": { "type": "string", "minLength": 1 },
     "runId": { "type": "string", "minLength": 1 },
     "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "origin": { "type": "string", "minLength": 1 },
     "secureContext": { "type": "boolean" },
     "browser": { "type": "object" },
     "platform": { "type": "object" },
+    "viewport": { "type": "object" },
+    "observations": { "type": "array", "items": { "type": "object" } },
+    "operatorNotes": { "type": "string" },
     "results": {
       "type": "array",
       "items": {
