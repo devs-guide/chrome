@@ -32,6 +32,55 @@ footer {
   margin-inline: auto;
 }
 
+.docs-header {
+  width: min(880px, calc(100% - 2rem));
+  margin-inline: auto;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.docs-header a { color: var(--accent-strong); font-weight: 800; text-decoration: none; }
+
+.docs main { width: min(880px, calc(100% - 2rem)); margin: 4rem auto; }
+
+article {
+  padding: clamp(1.5rem, 5vw, 3.5rem);
+  border: 1px solid var(--line);
+  border-radius: 1.1rem;
+  background: var(--panel);
+}
+
+article h1 { font-size: clamp(2.2rem, 7vw, 4.5rem); line-height: 1; }
+article h2 { margin-top: 2.8rem; }
+article h3 { margin-top: 2rem; }
+article p,
+article li { color: var(--muted); line-height: 1.7; }
+article a { color: var(--accent-strong); }
+article code { color: var(--text); }
+
+pre {
+  overflow: auto;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  background: var(--bg);
+  line-height: 1.55;
+}
+
+blockquote {
+  margin-inline: 0;
+  padding-left: 1rem;
+  border-left: 3px solid var(--accent);
+  color: var(--muted);
+}
+
+.table-wrap { overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; }
+th,
+td { padding: 0.8rem; border: 1px solid var(--line); text-align: left; }
+th { color: var(--text); }
+
 .hero { padding: 7rem 0 4.5rem; }
 
 .eyebrow {

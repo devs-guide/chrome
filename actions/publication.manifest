@@ -1,0 +1,9 @@
+# type|repository source|artifact destination
+tree|www|.
+tree|web|web
+docs|build|build
+docs|docs|docs
+file|readme.md|readme.md
+file|LICENSE|LICENSE
+file|SECURITY.md|SECURITY.md
+file|RELEASE_NOTES.md|RELEASE_NOTES.md
