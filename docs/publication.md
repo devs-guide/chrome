@@ -15,4 +15,8 @@ and report schema, Chromium source-build docs, documentation, and publication
 metadata/checksums.
 
 Feature previews are opt-in, exact-SHA artifacts under `_preview/`; they must
-not overwrite the canonical main tree.
+not overwrite the canonical main tree. The manual preview workflow accepts a
+strict lowercase label, an exact remote commit SHA, and a matching typed
+confirmation. Canonical publication likewise requires a typed confirmation for
+manual rollback/republication. Defining these workflows does not authorize
+enabling Pages or running either publisher; those remain human review gates.

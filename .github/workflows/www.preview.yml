@@ -1,0 +1,166 @@
+name: Publish isolated exact-SHA preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact lowercase 40-character source commit SHA
+        required: true
+        type: string
+      preview_label:
+        description: Lowercase label using letters, digits, and hyphens
+        required: true
+        type: string
+      confirm_preview_publish:
+        description: Type publish-preview <label>@<source_sha>
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      source_sha: ${{ steps.preview.outputs.sha }}
+      preview_path: ${{ steps.preview.outputs.path }}
+      preview_url: ${{ steps.preview.outputs.url }}
+
+    steps:
+      - name: Checkout exact preview candidate
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ inputs.source_sha }}
+
+      - name: Authorize and resolve preview
+        id: preview
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          PREVIEW_LABEL: ${{ inputs.preview_label }}
+          CONFIRMATION: ${{ inputs.confirm_preview_publish }}
+        run: |
+          set -euo pipefail
+          [[ "${SOURCE_SHA}" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "[www.preview][error] source_sha must be a lowercase full commit SHA" >&2
+            exit 1
+          }
+          [[ "${PREVIEW_LABEL}" =~ ^[a-z0-9][a-z0-9-]{0,47}$ ]] || {
+            echo "[www.preview][error] preview_label is unsafe" >&2
+            exit 1
+          }
+          [[ "${PREVIEW_LABEL}" != *..* ]] || {
+            echo "[www.preview][error] preview_label may not contain '..'" >&2
+            exit 1
+          }
+          [[ "${CONFIRMATION}" == "publish-preview ${PREVIEW_LABEL}@${SOURCE_SHA}" ]] || {
+            echo "[www.preview][error] publication confirmation did not match" >&2
+            exit 1
+          }
+          [[ "$(git rev-parse HEAD)" == "${SOURCE_SHA}" ]] || {
+            echo "[www.preview][error] checkout does not match requested SHA" >&2
+            exit 1
+          }
+          git branch -r --contains "${SOURCE_SHA}" | grep -qv 'origin/HEAD' || {
+            echo "[www.preview][error] source SHA is not reachable from a remote branch" >&2
+            exit 1
+          }
+
+          short_sha="${SOURCE_SHA:0:12}"
+          preview_path="_preview/${PREVIEW_LABEL}/${short_sha}"
+          preview_url="https://devs-guide.github.io/chrome/${preview_path}"
+          {
+            echo "sha=${SOURCE_SHA}"
+            echo "path=${preview_path}"
+            echo "url=${preview_url}"
+          } >> "${GITHUB_OUTPUT}"
+          echo "[www.preview] ${preview_url}/"
+
+      - name: Configure Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          check-latest: false
+
+      - name: Run source and deterministic-build checks
+        run: bash actions/check.sh
+
+      - name: Build exact preview artifact
+        env:
+          PUBLISH_DIR: static
+          SOURCE_REF: preview/${{ inputs.preview_label }}
+          SOURCE_SHA: ${{ steps.preview.outputs.sha }}
+        run: bash actions/www.pages.sh
+
+      - name: Validate exact preview artifact
+        env:
+          STATIC_DIR: static
+        run: bash actions/validate.pages.sh
+
+      - name: Upload immutable preview artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-${{ inputs.preview_label }}-${{ steps.preview.outputs.sha }}
+          path: static
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7
+
+  deploy-preview:
+    needs: build-and-validate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    concurrency:
+      group: www-pages-live
+      cancel-in-progress: false
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout generated www branch
+        uses: actions/checkout@v6
+        with:
+          ref: www
+          path: pages
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download exact validated preview
+        uses: actions/download-artifact@v5
+        with:
+          name: preview-${{ inputs.preview_label }}-${{ needs.build-and-validate.outputs.source_sha }}
+          path: preview-artifact
+
+      - name: Add only the isolated preview path
+        env:
+          PREVIEW_PATH: ${{ needs.build-and-validate.outputs.preview_path }}
+          SOURCE_SHA: ${{ needs.build-and-validate.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          [[ "${PREVIEW_PATH}" =~ ^_preview/[a-z0-9][a-z0-9-]{0,47}/[0-9a-f]{12}$ ]]
+          mkdir -p "pages/${PREVIEW_PATH}"
+          rsync -a --delete preview-artifact/ "pages/${PREVIEW_PATH}/"
+          cd pages
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -- "${PREVIEW_PATH}"
+          if git diff --cached --quiet; then
+            echo "[www.preview] exact preview already exists"
+          else
+            git commit -m "preview: ${PREVIEW_PATH} from ${SOURCE_SHA}"
+            git push origin HEAD:www
+          fi
+          echo "[www.preview] ${{ needs.build-and-validate.outputs.preview_url }}/"
+
+  validate-published-preview:
+    needs: [build-and-validate, deploy-preview]
+    uses: ./.github/workflows/www.pages.remote.yml
+    with:
+      source_sha: ${{ needs.build-and-validate.outputs.source_sha }}
+      base_url: ${{ needs.build-and-validate.outputs.preview_url }}
+    permissions:
+      contents: read

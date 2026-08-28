@@ -1,0 +1,160 @@
+name: Publish canonical static artifact to www
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - "www/**"
+      - "build/**"
+      - "docs/**"
+      - "actions/**"
+      - "readme.md"
+      - "LICENSE"
+      - "SECURITY.md"
+      - "RELEASE_NOTES.md"
+      - ".github/workflows/www.pages.yml"
+      - ".github/workflows/www.pages.remote.yml"
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact lowercase 40-character commit SHA from main
+        required: true
+        type: string
+      confirm_live_publish:
+        description: Type publish-www@<source_sha>
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: www-pages-candidate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      source_sha: ${{ steps.candidate.outputs.sha }}
+
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.source_sha || github.sha }}
+
+      - name: Authorize exact main candidate
+        id: candidate
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_SHA: ${{ github.sha }}
+          REQUESTED_SHA: ${{ inputs.source_sha }}
+          CONFIRMATION: ${{ inputs.confirm_live_publish }}
+        run: |
+          set -euo pipefail
+          candidate_sha="$(git rev-parse HEAD)"
+
+          if [[ "${EVENT_NAME}" == workflow_dispatch ]]; then
+            [[ "${REQUESTED_SHA}" =~ ^[0-9a-f]{40}$ ]] || {
+              echo "[www.pages][error] source_sha must be a lowercase full commit SHA" >&2
+              exit 1
+            }
+            [[ "${CONFIRMATION}" == "publish-www@${REQUESTED_SHA}" ]] || {
+              echo "[www.pages][error] live publication confirmation did not match" >&2
+              exit 1
+            }
+            git fetch --no-tags origin main
+            git merge-base --is-ancestor "${REQUESTED_SHA}" origin/main || {
+              echo "[www.pages][error] requested SHA is not reachable from origin/main" >&2
+              exit 1
+            }
+            expected_sha="${REQUESTED_SHA}"
+          else
+            expected_sha="${EVENT_SHA}"
+          fi
+
+          [[ "${candidate_sha}" == "${expected_sha}" ]] || {
+            echo "[www.pages][error] checked out ${candidate_sha}, expected ${expected_sha}" >&2
+            exit 1
+          }
+          echo "sha=${candidate_sha}" >> "${GITHUB_OUTPUT}"
+
+      - name: Configure Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          check-latest: false
+
+      - name: Run source and deterministic-build checks
+        run: bash actions/check.sh
+
+      - name: Build exact canonical artifact
+        env:
+          PUBLISH_DIR: static
+          SOURCE_REF: main
+          SOURCE_SHA: ${{ steps.candidate.outputs.sha }}
+        run: bash actions/www.pages.sh
+
+      - name: Validate exact canonical artifact
+        env:
+          STATIC_DIR: static
+        run: bash actions/validate.pages.sh
+
+      - name: Upload immutable candidate artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-${{ steps.candidate.outputs.sha }}
+          path: static
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7
+
+  deploy-www:
+    needs: build-and-validate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: https://devs-guide.github.io/chrome/
+    concurrency:
+      group: www-pages-live
+      cancel-in-progress: false
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout deployment repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Download exact validated artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: pages-${{ needs.build-and-validate.outputs.source_sha }}
+          path: static
+
+      - name: Replace generated www branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: static
+          publish_branch: www
+          force_orphan: true
+          full_commit_message: deploy main@${{ needs.build-and-validate.outputs.source_sha }} via actions/${{ github.run_id }}
+
+  validate-published-pages:
+    needs: [build-and-validate, deploy-www]
+    uses: ./.github/workflows/www.pages.remote.yml
+    with:
+      source_sha: ${{ needs.build-and-validate.outputs.source_sha }}
+      base_url: https://devs-guide.github.io/chrome
+    permissions:
+      contents: read

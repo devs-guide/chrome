@@ -1,0 +1,64 @@
+name: Validate published Pages artifact
+
+on:
+  workflow_call:
+    inputs:
+      source_sha:
+        description: Exact source commit represented by the published tree
+        required: true
+        type: string
+      base_url:
+        description: Published artifact URL without a trailing slash
+        required: false
+        default: https://devs-guide.github.io/chrome
+        type: string
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact source commit expected on the live site
+        required: true
+        type: string
+      base_url:
+        description: Published artifact URL without a trailing slash
+        required: false
+        default: https://devs-guide.github.io/chrome
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  validate-published-pages:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout the represented source
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          ref: ${{ inputs.source_sha }}
+
+      - name: Wait for Pages convergence and validate bytes
+        env:
+          BASE_URL: ${{ inputs.base_url }}
+          EXPECTED_SHA: ${{ inputs.source_sha }}
+        run: |
+          attempts=12
+          delay_seconds=15
+          attempt=1
+
+          while (( attempt <= attempts )); do
+            echo "[www.pages.remote] attempt ${attempt}/${attempts}"
+            if CACHE_BUSTER="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${attempt}" \
+              bash actions/www.pages.remote.sh; then
+              exit 0
+            fi
+            if (( attempt == attempts )); then
+              echo "[www.pages.remote][error] published artifact did not converge" >&2
+              exit 1
+            fi
+            sleep "${delay_seconds}"
+            attempt=$((attempt + 1))
+          done

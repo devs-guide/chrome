@@ -1,0 +1,63 @@
+name: Validate source and static artifact
+
+on:
+  push:
+    branches: [main, "feature/**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Configure Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          check-latest: false
+
+      - name: Verify build tools
+        run: |
+          command -v python3
+          command -v openssl
+          command -v rsync
+
+      - name: Run repository checks
+        run: bash actions/check.sh
+
+      - name: Build the review artifact
+        env:
+          PUBLISH_DIR: static
+          SOURCE_REF: ${{ github.ref_name }}
+          SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: bash actions/www.pages.sh
+
+      - name: Validate the review artifact
+        env:
+          STATIC_DIR: static
+        run: bash actions/validate.pages.sh
+
+      - name: Upload non-publishing review artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-static-${{ github.event.pull_request.head.sha || github.sha }}
+          path: static
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7
