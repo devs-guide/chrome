@@ -1,0 +1,19 @@
+{
+  "id": "./",
+  "name": "Chrome Web Touch Lab",
+  "short_name": "Touch Lab",
+  "description": "Offline-capable touch and pointer diagnostics for Chromium browsers.",
+  "start_url": "./#/run",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0a0f18",
+  "theme_color": "#101826",
+  "icons": [
+    {
+      "src": "./icons/app.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "artifactVersion": "1",
+  "buildTime": "2026-08-28T14:12:29Z",
+  "catalogVersion": "0.0.1",
+  "release": "0.0.1-dev",
+  "repository": "devs-guide/chrome",
+  "schemaVersion": 1,
+  "sourceRef": "main",
+  "sourceSha": "d0aec81b4337f3a21947a7e35e84ebbc7ba5559d"
+}

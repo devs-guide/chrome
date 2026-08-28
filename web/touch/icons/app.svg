@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Touch Lab contact marker</title>
+  <rect width="512" height="512" rx="108" fill="#101826"/>
+  <circle cx="256" cy="256" r="154" fill="none" stroke="#58d6c7" stroke-width="28"/>
+  <circle cx="256" cy="256" r="82" fill="#58d6c7" opacity=".24"/>
+  <circle cx="256" cy="256" r="32" fill="#ffca6b"/>
+  <path d="M256 42v54M256 416v54M42 256h54M416 256h54" stroke="#f3f6fa" stroke-width="18" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark light">
+    <title>Offline trusted-LAN operation · Chrome Web Labs</title>
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body class="docs">
+    <header class="docs-header">
+      <a href="../index.html">Chrome Web Labs</a>
+    </header>
+    <main><article><h1 id="offline-trusted-lan-operation">Offline trusted-LAN operation</h1>
+<p>Offline operation is a first-class deployment of the generated <code>static/</code> artifact, not a reduced HTTP mode.</p>
+<p>The expected origin is:</p>
+<pre><code class="language-text">https://&lt;LAN-IP&gt;:8443/chrome/</code></pre>
+<p>The serving host creates a persistent private lab CA and replaceable LAN leaf certificate. Only the public root certificate is installed on test devices; private keys remain beneath ignored <code>.local/</code> state.</p>
+<p>After artifact transfer and device trust provisioning, the LAN may be fully disconnected from the internet. The server must not contact GitHub, certificate services, package registries, analytics, or other remote services.</p>
+<p>Device trust cannot be installed or bypassed by the Python server. Managed or locked hardware must use its supported trust-provisioning mechanism.</p>
+<h2 id="host-workflow">Host workflow</h2>
+<p>Build once, provision explicit identities, inspect the setup, and serve:</p>
+<pre><code class="language-bash">bash actions/www.pages.sh
+python3 tools/lan_https.py init --ip 192.168.50.20 --dns chrome.test
+python3 tools/lan_https.py doctor \
+  --ip 192.168.50.20 --bind 0.0.0.0 --port 8443 --root static
+python3 tools/lan_https.py serve \
+  --ip 192.168.50.20 --bind 0.0.0.0 --port 8443 --root static</code></pre>
+<p>Copy only <code>.local/lan-https/ca/root-ca.cert.cer</code> to the target device and verify the displayed SHA-256 fingerprint before installing trust. Never copy <code>root-ca.key.pem</code>. A host-side <code>doctor</code> pass proves the TLS chain, requested identity, and artifact bytes; it does not prove that an external device trusts the CA.</p>
+<p>If an IP or DNS identity changes, use <code>renew</code> with the complete desired SAN set. The root CA remains stable, so already provisioned devices normally trust the replacement leaf. <code>reset-ca</code> intentionally requires a destructive typed confirmation and means every device must be provisioned again.</p>
+<p>The remote device clock must fall between the reported certificate Not Before and Not After values. A locked device that cannot import a private CA requires its supported vendor/MDM trust mechanism; bypassing certificate validation or accepting an interstitial is not a valid test setup.</p></article></main>
+    <footer><p>Rendered from repository-owned Markdown.</p></footer>
+  </body>
+</html>

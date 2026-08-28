@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark light">
+    <title>Publication · Chrome Web Labs</title>
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body class="docs">
+    <header class="docs-header">
+      <a href="../index.html">Chrome Web Labs</a>
+    </header>
+    <main><article><h1 id="publication">Publication</h1>
+<p>The publication contract is:</p>
+<pre><code class="language-text">source → build once → validate once → deploy that exact artifact</code></pre>
+<p>The public site is rooted at <code>https://devs-guide.github.io/chrome/</code>. The source tree never treats the generated <code>www</code> branch or local <code>static/</code> directory as an editable owner.</p>
+<p>Required stable paths include the root landing page, <code>web/touch</code>, its catalog and report schema, Chromium source-build docs, documentation, and publication metadata/checksums.</p>
+<p>Feature previews are opt-in, exact-SHA artifacts under <code>_preview/</code>; they must not overwrite the canonical main tree. The manual preview workflow accepts a strict lowercase label, an exact remote commit SHA, and a matching typed confirmation. Canonical publication likewise requires a typed confirmation for manual rollback/republication. Defining these workflows does not authorize enabling Pages or running either publisher; those remain human review gates.</p>
+<p>An ordinary initial <code>main</code> push builds and validates the canonical candidate, but the deploy job remains skipped unless the repository variable <code>CHROME_PAGES_PUBLISH_ENABLED</code> is explicitly set to <code>true</code>. Setting that variable is a reviewed remote-settings action. A manual canonical run may publish without the variable only after its exact SHA and typed live-publish confirmation both pass.</p></article></main>
+    <footer><p>Rendered from repository-owned Markdown.</p></footer>
+  </body>
+</html>

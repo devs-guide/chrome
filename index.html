@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark light">
+    <meta name="description" content="Chrome and Chromium web laboratories, diagnostics, and build guides.">
+    <title>Chrome Web Labs</title>
+    <link rel="stylesheet" href="assets/site.css">
+  </head>
+  <body>
+    <header class="hero">
+      <p class="eyebrow">devs.guide</p>
+      <h1>Chrome Web Labs</h1>
+      <p class="lede">Runnable browser diagnostics, offline hardware testing, and Chromium build guides.</p>
+    </header>
+
+    <main>
+      <section aria-labelledby="labs-heading">
+        <div class="section-heading">
+          <p class="eyebrow">Run</p>
+          <h2 id="labs-heading">Web laboratories</h2>
+        </div>
+        <div class="grid">
+          <a class="card active" href="web/touch/">
+            <span class="status">Initial feature</span>
+            <h3>Touch</h3>
+            <p>Inspect contacts, gestures, event models, browser defaults, and observed device limits.</p>
+          </a>
+          <a class="card" href="web/app/"><h3>App</h3><p>Static browser application patterns.</p></a>
+          <a class="card" href="web/extension/"><h3>Extension</h3><p>Chrome Extension source and test fixtures.</p></a>
+          <a class="card" href="web/pwa/"><h3>PWA</h3><p>Installation, service workers, caches, and offline behavior.</p></a>
+          <a class="card" href="web/rtc/"><h3>RTC</h3><p>Real-time communication laboratories.</p></a>
+          <a class="card" href="web/wasm/"><h3>WASM</h3><p>WebAssembly capability examples.</p></a>
+        </div>
+      </section>
+
+      <section class="split" aria-labelledby="guides-heading">
+        <div>
+          <p class="eyebrow">Build</p>
+          <h2 id="guides-heading">Chromium builds</h2>
+          <p>Trace source revisions, toolchains, GN arguments, patches, and feature-flag variants.</p>
+          <a class="text-link" href="build/source/">Open source-build guides →</a>
+        </div>
+        <div>
+          <p class="eyebrow">Understand</p>
+          <h2>Project documentation</h2>
+          <p>Review architecture, publication, offline LAN provisioning, and evidence boundaries.</p>
+          <a class="text-link" href="docs/">Open documentation →</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>One validated static artifact. Public HTTPS or isolated trusted LAN HTTPS.</p>
+      <a href="https://github.com/devs-guide/chrome">Repository</a>
+    </footer>
+  </body>
+</html>

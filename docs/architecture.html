@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark light">
+    <title>Architecture · Chrome Web Labs</title>
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body class="docs">
+    <header class="docs-header">
+      <a href="../index.html">Chrome Web Labs</a>
+    </header>
+    <main><article><h1 id="architecture">Architecture</h1>
+<p>The repository has four canonical source families:</p>
+<div class="table-wrap"><table><thead><tr>
+<th>Source</th>
+<th>Owner</th>
+</tr></thead><tbody>
+<tr>
+<td><code>www/</code></td>
+<td>Root public landing page and shared site styling</td>
+</tr>
+<tr>
+<td><code>web/</code></td>
+<td>Runnable static browser laboratories</td>
+</tr>
+<tr>
+<td><code>build/</code></td>
+<td>Chromium build/source documentation</td>
+</tr>
+<tr>
+<td><code>docs/</code></td>
+<td>Project and contributor documentation</td>
+</tr>
+</tbody></table></div>
+<p><code>actions/www.pages.sh</code> assembles these sources into ignored <code>static/</code>. Both GitHub Pages and the Python LAN HTTPS tool consume that exact artifact.</p>
+<p>Normal browser labs have no application backend or required external runtime dependency. Features that genuinely require a protocol server remain separate tools and must not expand the static server implicitly.</p></article></main>
+    <footer><p>Rendered from repository-owned Markdown.</p></footer>
+  </body>
+</html>

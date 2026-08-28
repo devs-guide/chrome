@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "0.0.1",
+  "suiteVersion": "0.0.1",
+  "resultStates": [
+    "pending",
+    "passed",
+    "failed",
+    "expected-unavailable",
+    "unexpected-unavailable",
+    "skipped",
+    "not-exercised"
+  ],
+  "tests": [
+    {
+      "id": "environment.baseline",
+      "name": "Runtime environment",
+      "category": "environment",
+      "description": "Capture only browser-exposed origin, viewport, input, platform, and API signals.",
+      "instructions": "Review the detected values, then save the observation. Capability is recorded from runtime signals rather than inferred from browser branding.",
+      "expected": "available",
+      "requiresSecureContext": false,
+      "requiresPermission": false,
+      "requiresUserGesture": true,
+      "requiresHardware": false,
+      "requiresInternet": false,
+      "requiresSpecialServer": false,
+      "requiresMultipleOrigins": false,
+      "offlineCapable": true,
+      "destructivePotential": "none",
+      "privacySensitivity": "browser-exposed device characteristics remain local",
+      "automationLevel": "AUTO"
+    },
+    {
+      "id": "pointer.lifecycle",
+      "name": "Pointer lifecycle",
+      "category": "pointer-events",
+      "description": "Observe pointer down, movement, release/cancel, type, primary state, pressure, and contact geometry.",
+      "instructions": "Press or touch inside the contact field, move while held, and release. A complete down/up or down/cancel lifecycle passes the test.",
+      "expected": "available",
+      "requiresSecureContext": false,
+      "requiresPermission": false,
+      "requiresUserGesture": true,
+      "requiresHardware": false,
+      "requiresInternet": false,
+      "requiresSpecialServer": false,
+      "requiresMultipleOrigins": false,
+      "offlineCapable": true,
+      "destructivePotential": "none",
+      "privacySensitivity": "transient input coordinates remain local",
+      "automationLevel": "HUMAN"
+    },
+    {
+      "id": "touch.lifecycle",
+      "name": "Touch Events lifecycle",
+      "category": "touch-events",
+      "description": "Observe touchstart, touchmove, touchend/cancel, contact identifiers, and simultaneous-contact high-water count.",
+      "instructions": "Place one or more fingers inside the contact field, move them, and release. If this browser/device does not expose Touch Events, record the expected platform-dependent absence.",
+      "expected": "platform-dependent",
+      "requiresSecureContext": false,
+      "requiresPermission": false,
+      "requiresUserGesture": true,
+      "requiresHardware": true,
+      "requiresInternet": false,
+      "requiresSpecialServer": false,
+      "requiresMultipleOrigins": false,
+      "offlineCapable": true,
+      "destructivePotential": "none",
+      "privacySensitivity": "transient touch coordinates remain local",
+      "automationLevel": "EXTERNAL-HARDWARE"
+    }
+  ],
+  "profiles": [
+    {
+      "id": "chromium-runtime-observation",
+      "description": "Default profile: compare declared expectation with actual API exposure and behavior.",
+      "expectations": {
+        "environment.baseline": "available",
+        "pointer.lifecycle": "available",
+        "touch.lifecycle": "platform-dependent"
+      }
+    }
+  ],
+  "sources": [
+    {
+      "title": "Chrome for Developers",
+      "url": "https://developer.chrome.com/",
+      "role": "Chrome behavior and implementation guidance",
+      "lastReviewed": "2026-08-28"
+    },
+    {
+      "title": "MDN Web Docs",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events",
+      "role": "Web API reference and compatibility context",
+      "lastReviewed": "2026-08-28"
+    },
+    {
+      "title": "Chromium Issue Tracker",
+      "url": "https://issues.chromium.org/issues",
+      "role": "Known Chromium implementation issues and edge cases",
+      "lastReviewed": "2026-08-28"
+    }
+  ]
+}
