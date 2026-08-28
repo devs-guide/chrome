@@ -122,9 +122,6 @@ jobs:
     needs: build-and-validate
     runs-on: ubuntu-24.04
     timeout-minutes: 10
-    environment:
-      name: github-pages
-      url: https://devs-guide.github.io/chrome/
     concurrency:
       group: www-pages-live
       cancel-in-progress: false
